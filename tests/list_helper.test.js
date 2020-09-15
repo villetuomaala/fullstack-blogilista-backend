@@ -94,6 +94,11 @@ const blogWithMostLikes = {
   __v: 0,
 }
 
+const mostBlogs = {
+  author: "Robert C. Martin",
+  blogs: 3
+}
+
 test('dummy returns one', () => {
   const blogs = []
 
@@ -130,5 +135,11 @@ describe('Most likes', () => {
 
   test('undefined list returns null', () => {
     expect(listHelper.favoriteBlog()).toEqual(null)
+  })
+})
+
+describe('most blogs', () => {
+  test('The blog with most likes equals', () => {
+    expect(listHelper.mostBlogs(blogs)).toEqual(mostBlogs)
   })
 })
