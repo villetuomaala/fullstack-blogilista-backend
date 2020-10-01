@@ -1,4 +1,4 @@
-const blog = require('../models/blog')
+const Blog = require('../models/blog')
 
 const initialBlogs = [
   {
@@ -15,9 +15,16 @@ const initialBlogs = [
   }
 ]
 
+const newBlog = {
+  title: 'Blog about Java5',
+  author: 'Java Dude',
+  url: 'https://oracle.com',
+  likes: 0
+}
+
 const blogsInDb = async () => {
-  const blogs = await blog.find({})
+  const blogs = await Blog.find({})
   return blogs.map(blog => blog.toJSON())
 }
 
-module.exports = { initialBlogs, blogsInDb }
+module.exports = { initialBlogs, newBlog, blogsInDb }
