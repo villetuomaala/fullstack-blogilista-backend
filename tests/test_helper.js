@@ -28,9 +28,14 @@ const newBlogWithoutLikes = {
   url: 'https://oracle.com'
 }
 
+const newInvalidBlog = {
+  author: "Cromet Monster",
+  likes: 0
+ }
+
 const blogsInDb = async () => {
   const blogs = await Blog.find({})
   return blogs.map(blog => blog.toJSON())
 }
 
-module.exports = { initialBlogs, newBlog, blogsInDb, newBlogWithoutLikes }
+module.exports = { initialBlogs, newBlog, blogsInDb, newBlogWithoutLikes, newInvalidBlog }

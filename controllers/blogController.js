@@ -10,7 +10,7 @@ blogController.get('/', (request, response, next) => {
     .catch(error => next(error))
 })
 
-blogController.post('/', (request, response) => {
+blogController.post('/', (request, response, next) => {
   const blog = new Blog(request.body)
 
   if (!blog.likes) blog.likes = 0;

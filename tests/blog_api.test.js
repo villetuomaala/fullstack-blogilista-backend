@@ -36,7 +36,7 @@ describe('GET /api/blogs', () => {
 
 
 describe('POST /api/blogs', () => {
-  test('post succesfully new blog object', async () => {
+  test('post new blog', async () => {
     await api
       .post('/api/blogs')
       .send(helper.newBlog)
@@ -57,6 +57,13 @@ describe('POST /api/blogs', () => {
       .expect('Content-Type', /application\/json/)
 
     expect(response.body.likes).toBe(0)
+  })
+
+  test('should return 400 Bad Request', async () => {
+    await api
+      .post('/api/blogs')
+      .send(helper.newInvalidBlog)
+      .expect(400)
   })
 })
 
