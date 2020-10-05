@@ -30,7 +30,23 @@ blogController.delete('/:id', async (request, response, next) => {
   } catch (error) {
     next(error)
   }
+})
 
+blogController.put('/:id', async (request, response, next) => {
+
+  const newNote = {
+    title: request.body.title,
+    author: request.body.author,
+    url: request.body.url,
+    likes: request.body.likes
+  }
+
+  try {
+    const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, newNote, { new: true })
+    response.json(updatedBlog.toJSON())
+  } catch (error) {
+    next(error)
+  }
 })
 
 module.exports = blogController

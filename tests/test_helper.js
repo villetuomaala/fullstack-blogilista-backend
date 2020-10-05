@@ -22,6 +22,13 @@ const newBlog = {
   likes: 0
 }
 
+const updateBlog = {
+  title: 'Blog about Java6',
+  author: 'Java6 Dude',
+  url: 'https://oracle.com/6',
+  likes: 1
+}
+
 const newBlogWithoutLikes = {
   title: 'Blog about...',
   author: 'The Dude',
@@ -38,4 +45,4 @@ const blogsInDb = async () => {
   return blogs.map(blog => blog.toJSON())
 }
 
-module.exports = { initialBlogs, newBlog, blogsInDb, newBlogWithoutLikes, newInvalidBlog }
+module.exports = { initialBlogs, newBlog, blogsInDb, newBlogWithoutLikes, newInvalidBlog, updateBlog }

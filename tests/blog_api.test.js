@@ -84,6 +84,23 @@ describe('DELETE /api/blogs', () => {
   })
 })
 
+describe('PUT /api/blogs', () => {
+  test('update blog', async () => {
+    const response = await api
+      .post('/api/blogs')
+      .send(helper.newBlog)
+
+    const updatedBlog = await api
+      .put(`/api/blogs/${response.body.id}`)
+      .send(helper.updateBlog)
+      .expect(200)
+
+      const blogsAfterPost = await helper.blogsInDb()
+      expect(blogsAfterPost.map(b => _.omit(b, 'id'))).toContainEqual(helper.updateBlog)
+      expect(blogsAfterPost.map(b => _.omit(b, 'id'))).not.toContainEqual(helper.newBlog)
+  })
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
