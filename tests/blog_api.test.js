@@ -67,6 +67,23 @@ describe('POST /api/blogs', () => {
   })
 })
 
+describe('DELETE /api/blogs', () => {
+  test('delete blog', async () => {
+    const response = await api
+      .post('/api/blogs')
+      .send(helper.newBlog)
+
+    await api
+      .delete(`/api/blogs/${response.body.id}`)
+      .expect(204)
+
+    const blogsAfterDelete = await helper.blogsInDb()
+
+    expect(helper.initialBlogs).toHaveLength(blogsAfterDelete.length)
+    expect(blogsAfterDelete).not.toContain(helper.newBlog)
+  })
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })

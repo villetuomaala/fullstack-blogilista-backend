@@ -23,4 +23,14 @@ blogController.post('/', (request, response, next) => {
     .catch(error => next(error))
 })
 
+blogController.delete('/:id', async (request, response, next) => {
+  try {
+    await Blog.findByIdAndRemove(request.params.id)
+    response.status(204).end()
+  } catch (error) {
+    next(error)
+  }
+
+})
+
 module.exports = blogController
