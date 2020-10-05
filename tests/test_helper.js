@@ -22,9 +22,15 @@ const newBlog = {
   likes: 0
 }
 
+const newBlogWithoutLikes = {
+  title: 'Blog about...',
+  author: 'The Dude',
+  url: 'https://oracle.com'
+}
+
 const blogsInDb = async () => {
   const blogs = await Blog.find({})
   return blogs.map(blog => blog.toJSON())
 }
 
-module.exports = { initialBlogs, newBlog, blogsInDb }
+module.exports = { initialBlogs, newBlog, blogsInDb, newBlogWithoutLikes }

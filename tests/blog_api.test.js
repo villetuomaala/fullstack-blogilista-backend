@@ -48,6 +48,16 @@ describe('POST /api/blogs', () => {
     expect(blogsAfterPost).toHaveLength(helper.initialBlogs.length+1)
     expect(blogsAfterPost.map(b => _.omit(b, 'id'))).toContainEqual(helper.newBlog)
   })
+
+  test('blog without likes defaults to 0', async () => {
+    const response = await api
+      .post('/api/blogs')
+      .send(helper.newBlogWithoutLikes)
+      .expect(201)
+      .expect('Content-Type', /application\/json/)
+
+    expect(response.body.likes).toBe(0)
+  })
 })
 
 afterAll(() => {
