@@ -17,7 +17,11 @@ const userSchema = mongoose.Schema({
     type: String,
     required: true,
     minlength: 4
-  }
+  },
+  blogs: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Blog'
+  }]
 }).plugin(unique)
 
 userSchema.set('toJSON', {
