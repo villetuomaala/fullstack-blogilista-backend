@@ -1,7 +1,7 @@
 const blogController = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
-const jwt = require('jsonwebtoken')
+const authUtils = require('../utils/authUtils')
 const CustomError = require('../utils/customError')
 
 
@@ -17,10 +17,8 @@ blogController.get('/', async (request, response, next) => {
 blogController.post('/', async (request, response, next) => {
   try {
     if (!request.token) throw CustomError('Unauthorized', 'Authorization header missing', 401)
-    
-    const verifiedToken = jwt.verify(request.token, process.env.TOKEN_KEY)
-    if (!request.token || !verifiedToken.id) throw CustomError('Unauthorized', 'Invalid token', 401)
 
+    const verifiedToken = authUtils.verifyToken(request.token)
     const user = await User.findById(verifiedToken.id)
     const blog = new Blog({
       ...request.body,
@@ -41,6 +39,8 @@ blogController.post('/', async (request, response, next) => {
 
 blogController.delete('/:id', async (request, response, next) => {
   try {
+    const verifiedToken = authUtils.verifyToken(request.token)
+    await authUtils.authorizeUserOperation(verifiedToken.id, Blog.findById(request.params.id))
     await Blog.findByIdAndRemove(request.params.id)
     response.status(204).end()
   } catch (error) {
