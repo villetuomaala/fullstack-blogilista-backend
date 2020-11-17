@@ -1,4 +1,5 @@
 const logger = require('./logger')
+const CustomError = require('../utils/customError')
 
 const requestLogger = (request, response, next) => {  
   logger.info('Method:', request.method)
@@ -26,8 +27,19 @@ const errorHandler = (error, request, response, next) => {
   } else if (error.status && error.message){
     return response.status(error.status).json({error: error.message})
   }
-
   next(error)
 }
 
-module.exports = { requestLogger, unknownEndpoint, errorHandler }
+
+const extractToken = (request, response, next) => {
+  const authorization = request.get('Authorization')
+  if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
+    request.token =  authorization.substring(7)
+  } else if (authorization) {
+    throw CustomError('Unauthorized', 'Unsupported authorization schema', 401)
+  }
+  next()
+}
+
+
+module.exports = { requestLogger, unknownEndpoint, errorHandler, extractToken }

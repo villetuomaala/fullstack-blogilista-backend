@@ -10,6 +10,7 @@ const db = require('./utils/db')
 app.use(cors())
 app.use(express.json())
 app.use(middleware.requestLogger)
+app.use(middleware.extractToken)
 
 app.use('/api/blogs', blogController)
 app.use('/api/users', userController)

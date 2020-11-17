@@ -4,13 +4,6 @@ const User = require('../models/user')
 const jwt = require('jsonwebtoken')
 const CustomError = require('../utils/customError')
 
-const getTokenFrom = request => {
-  const authorization = request.get('Authorization')
-  if (authorization && authorization.toLowerCase().startsWith('bearer ')) {
-    return authorization.substring(7)
-  }
-  throw CustomError('Unauthorized', 'Authorization header missing', 401)
-}
 
 blogController.get('/', async (request, response, next) => {
   try {
@@ -23,9 +16,10 @@ blogController.get('/', async (request, response, next) => {
 
 blogController.post('/', async (request, response, next) => {
   try {
-    const token = getTokenFrom(request)
-    const verifiedToken = jwt.verify(token, process.env.TOKEN_KEY)
-    if (!token || !verifiedToken.id) throw CustomError('Unauthorized', 'Invalid token', 401)
+    if (!request.token) throw CustomError('Unauthorized', 'Authorization header missing', 401)
+    
+    const verifiedToken = jwt.verify(request.token, process.env.TOKEN_KEY)
+    if (!request.token || !verifiedToken.id) throw CustomError('Unauthorized', 'Invalid token', 401)
 
     const user = await User.findById(verifiedToken.id)
     const blog = new Blog({
