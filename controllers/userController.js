@@ -23,7 +23,6 @@ userController.post('/', async (request, response, next) => {
 
 userController.get('/', async (request, response, next) => {
   try {
-    console.log()
     const users = await User.find({}).populate('blogs', { title: 1, author: 1, url: 1 })
     response.status(200).json(users)
   } catch (error) {

@@ -1,5 +1,23 @@
 const Blog = require('../models/blog')
 const User = require('../models/user')
+const supertest = require('supertest')
+const app = require('../app')
+
+const api = supertest(app)
+
+
+const loginApiUser = async () => {
+  const data = {
+    "username": initialUsers[0].username,
+    "password": initialUsers[0].password
+  }
+
+  const response = await api
+    .post('/api/login')
+    .send(data)
+  
+  return response.body
+}
 
 const initialBlogs = [
   {
@@ -19,12 +37,12 @@ const initialBlogs = [
 const initialUsers = [
   {
     username: 'admin',
-    password: 'adminmaster2000',
+    password: process.env.TEST_USER_PASSWORD,
     name: 'The true admin'
   },
   {
     username: 'root',
-    password: 'root2000',
+    password: process.env.TEST_USER_PASSWORD,
     name: 'The root user'
   }
 ]
@@ -72,5 +90,6 @@ module.exports = {
   newInvalidBlog, 
   updateBlog, 
   initialUsers, 
-  usersInBd 
+  usersInBd,
+  loginApiUser
 }

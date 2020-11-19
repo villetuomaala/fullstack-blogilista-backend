@@ -1,15 +1,29 @@
 const mongoose = require('mongoose')
 const supertest = require('supertest')
+const bcrypt = require('bcrypt')
 const app = require('../app')
 const blog = require('../models/blog')
+const user = require('../models/user')
 const helper = require('./test_helper')
 const _ = require('lodash')
 
 const api = supertest(app)
 
+let loginUser
+let users
+
+
+beforeAll(async () => {
+  const hashedPassword = await bcrypt.hash(process.env.TEST_USER_PASSWORD, 10)
+  await user.deleteMany({})
+  users = await user.insertMany(helper.initialUsers.map(u => ({ username: u.username, password: hashedPassword, name: u.name })))
+  loginUser = await helper.loginApiUser()
+})
+
 // init test db
 beforeEach(async () => {
   await blog.deleteMany({})
+  helper.initialBlogs.map(b => b.user = users[0]._id)
   await blog.insertMany(helper.initialBlogs)
 })
 
@@ -39,20 +53,22 @@ describe('POST /api/blogs', () => {
   test('post new blog', async () => {
     await api
       .post('/api/blogs')
-      .send(helper.newBlog)
+      .set('Authorization', `bearer ${loginUser.token}`)
+      .send({ ...helper.newBlog, user: loginUser.id })
       .expect(201)
       .expect('Content-Type', /application\/json/)
 
     const blogsAfterPost = await helper.blogsInDb()
 
     expect(blogsAfterPost).toHaveLength(helper.initialBlogs.length+1)
-    expect(blogsAfterPost.map(b => _.omit(b, 'id'))).toContainEqual(helper.newBlog)
+    expect(blogsAfterPost.map(b => _.omit(b, 'id')).map(b => _.omit(b, 'user'))).toContainEqual(helper.newBlog)
   })
 
   test('blog without likes defaults to 0', async () => {
     const response = await api
       .post('/api/blogs')
-      .send(helper.newBlogWithoutLikes)
+      .set('Authorization', `bearer ${loginUser.token}`)
+      .send({ ...helper.newBlogWithoutLikes, user: loginUser.id })
       .expect(201)
       .expect('Content-Type', /application\/json/)
 
@@ -62,8 +78,17 @@ describe('POST /api/blogs', () => {
   test('should return 400 Bad Request', async () => {
     await api
       .post('/api/blogs')
+      .set('Authorization', `bearer ${loginUser.token}`)
       .send(helper.newInvalidBlog)
       .expect(400)
+  })
+
+  test('should return Unauthorized 401 if Authorization token is missing', async () => {
+    await api
+      .post('/api/blogs')
+      .send({ ...helper.newBlog, user: loginUser.id })
+      .expect(401)
+      .expect('Content-Type', /application\/json/)
   })
 })
 
@@ -71,10 +96,12 @@ describe('DELETE /api/blogs', () => {
   test('delete blog', async () => {
     const response = await api
       .post('/api/blogs')
-      .send(helper.newBlog)
+      .set('Authorization', `bearer ${loginUser.token}`)
+      .send({ ...helper.newBlog, user: loginUser.id})
 
     await api
       .delete(`/api/blogs/${response.body.id}`)
+      .set('Authorization', `bearer ${loginUser.token}`)
       .expect(204)
 
     const blogsAfterDelete = await helper.blogsInDb()
@@ -88,16 +115,17 @@ describe('PUT /api/blogs', () => {
   test('update blog', async () => {
     const response = await api
       .post('/api/blogs')
+      .set('Authorization', `bearer ${loginUser.token}`)
       .send(helper.newBlog)
 
     const updatedBlog = await api
       .put(`/api/blogs/${response.body.id}`)
-      .send(helper.updateBlog)
+      .send({ ...helper.updateBlog, user: loginUser.id })
       .expect(200)
 
       const blogsAfterPost = await helper.blogsInDb()
-      expect(blogsAfterPost.map(b => _.omit(b, 'id'))).toContainEqual(helper.updateBlog)
-      expect(blogsAfterPost.map(b => _.omit(b, 'id'))).not.toContainEqual(helper.newBlog)
+      expect(blogsAfterPost.map(b => _.omit(b, 'id')).map(b => _.omit(b, 'user'))).toContainEqual(helper.updateBlog)
+      expect(blogsAfterPost.map(b => _.omit(b, 'id')).map(b => _.omit(b, 'user'))).not.toContainEqual(helper.newBlog)
   })
 })
 
