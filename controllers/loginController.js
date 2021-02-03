@@ -11,13 +11,13 @@ loginRouter.post('/', async (request, response, next) => {
 
     const user = await User.findOne({ username: request.body.username })
 
+    if (user === null) throw CustomError('Unauthorized', 'invalid username or password', 401)
+
     const loginSuccess = user === null
       ? false
       : await bcrypt.compare(request.body.password, user.password)
     
-    if (!(user && loginSuccess)) response.status(401).json({
-      error: 'invalid username or password'
-    })
+    if (!(user && loginSuccess)) throw CustomError('Unauthorized', 'invalid username or password', 401)
 
     const userForToken = {
       username: user.username,
