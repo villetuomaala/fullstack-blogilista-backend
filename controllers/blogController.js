@@ -50,7 +50,7 @@ blogController.delete('/:id', async (request, response, next) => {
 
 blogController.put('/:id', async (request, response, next) => {
 
-  const newNote = {
+  const newBlog = {
     title: request.body.title,
     author: request.body.author,
     url: request.body.url,
@@ -58,7 +58,7 @@ blogController.put('/:id', async (request, response, next) => {
   }
 
   try {
-    const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, newNote, { new: true })
+    const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, newBlog, { new: true }).populate('user', { username: 1, name: 1, id: 1 })
     response.json(updatedBlog.toJSON())
   } catch (error) {
     next(error)
