@@ -8,7 +8,7 @@ const CustomError = require('../utils/customError')
 blogController.get('/', async (request, response, next) => {
   try {
     const blogs = await Blog.find({}).populate('user', { username: 1, name: 1, id: 1 })
-    response.json(blogs)
+    response.json(blogs.sort((a, b) => a.likes - b.likes))
   } catch (error) {
     next(error)
   }
