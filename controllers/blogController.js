@@ -25,13 +25,13 @@ blogController.post('/', async (request, response, next) => {
       user: user.id
     })
 
-    if (!blog.likes) blog.likes = 0;
+    if (!blog.likes) blog.likes = 0
 
     const savedBlog = await blog.save()
-    user.blogs = user.blogs.concat(savedBlog.id);
+    user.blogs = user.blogs.concat(savedBlog.id)
     await user.save()
 
-    response.status(201).json(savedBlog)
+    response.status(201).json(await Blog.findById(savedBlog.id).populate('user', { username: 1, name: 1, id: 1 }))
   } catch (error) {
     next(error)
   }
@@ -39,6 +39,7 @@ blogController.post('/', async (request, response, next) => {
 
 blogController.delete('/:id', async (request, response, next) => {
   try {
+    if (!request.token) throw CustomError('Unauthorized', 'Authorization header missing', 401)
     const verifiedToken = authUtils.verifyToken(request.token)
     await authUtils.authorizeUserOperation(verifiedToken.id, Blog.findById(request.params.id))
     await Blog.findByIdAndRemove(request.params.id)
@@ -58,6 +59,7 @@ blogController.put('/:id', async (request, response, next) => {
   }
 
   try {
+    if (!request.token) throw CustomError('Unauthorized', 'Authorization header missing', 401)
     const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, newBlog, { new: true }).populate('user', { username: 1, name: 1, id: 1 })
     response.json(updatedBlog.toJSON())
   } catch (error) {
